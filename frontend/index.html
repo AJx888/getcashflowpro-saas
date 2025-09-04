@@ -581,4 +581,255 @@
             </div>
             <form id="loginForm">
                 <div class="mb-4">
-                    <label class="block text-white/80 mb-2">Ema
+                    <label class="block text-white/80 mb-2">Email Address</label>
+                    <input type="email" id="login-email" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50" placeholder="john@company.com">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-white/80 mb-2">Password</label>
+                    <input type="password" id="login-password" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full btn py-3 rounded-lg">
+                    Login to Dashboard
+                </button>
+            </form>
+            <div class="mt-4 text-center text-white/70">
+                <p>Don't have an account? <button onclick="switchToSignup()" class="text-blue-400 hover:text-blue-300">Sign Up</button></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cash Flow Chart
+            const cashFlowCtx = document.getElementById('cashFlowChart').getContext('2d');
+            const cashFlowChart = new Chart(cashFlowCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Cash Inflow',
+                         [45000, 48000, 52000, 49000, 51000, 47000],
+                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Cash Outflow',
+                         [32000, 35000, 38000, 41000, 39000, 37000],
+                        backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Forecast Chart
+            const forecastCtx = document.getElementById('forecastChart').getContext('2d');
+            const forecastChart = new Chart(forecastCtx, {
+                type: 'line',
+                 {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Projected Cash Flow',
+                         [45000, 48000, 52000, 49000, 51000, 47000],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Forecast Visualization
+            const forecastVisCtx = document.getElementById('forecastVisualization').getContext('2d');
+            const forecastVisChart = new Chart(forecastVisCtx, {
+                type: 'bar',
+                 {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Forecasted Balance',
+                         [13000, 13000, 14000, 8000, 12000, 10000],
+                        backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Modal functions
+        function openSignupModal() {
+            closeModal('loginModal');
+            document.getElementById('signupModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function openLoginModal() {
+            closeModal('signupModal');
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Switch between login and signup
+        function switchToLogin() {
+            closeModal('signupModal');
+            openLoginModal();
+        }
+
+        function switchToSignup() {
+            closeModal('loginModal');
+            openSignupModal();
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = ['signupModal', 'loginModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    closeModal(modalId);
+                }
+            });
+        }
+
+        // Form submission handlers
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const company = document.getElementById('signup-company').value;
+            
+            // Simulate API call to backend
+            alert(`Thank you for signing up, ${name}!\n\nIn a real application:\n1. Your account would be created\n2. You'd receive a confirmation email\n3. You'd be logged in automatically\n\nYour company: ${company}`);
+            
+            closeModal('signupModal');
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Simulate API call to backend
+            alert(`Login attempt for ${email}\n\nIn a real application:\n1. Your credentials would be verified\n2. You'd be logged in\n3. You'd see your dashboard with real financial data`);
+            
+            closeModal('loginModal');
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
