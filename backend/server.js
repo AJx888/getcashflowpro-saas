@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const stripe = require('stripe')('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');
 const app = express();
 
 // Middleware
@@ -126,7 +127,8 @@ app.get('/', (req, res) => {
       'Transaction History',
       'Integration Ready',
       'Mobile Access',
-      'Team Collaboration'
+      'Team Collaboration',
+      'Payment Processing'
     ]
   });
 });
@@ -480,24 +482,103 @@ app.get('/api/team/:userId', (req, res) => {
   });
 });
 
-// Add Payment Integration Points (Stripe placeholders)
-app.post('/api/payment/setup', (req, res) => {
-  const { userId, paymentMethod } = req.body;
-  
-  const user = users.find(u => u.id === userId);
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
+// Stripe Integration Points
+
+// Setup Stripe Customer
+app.post('/api/stripe/customer', async (req, res) => {
+  try {
+    const { userId, email, name } = req.body;
+    
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Create Stripe customer
+    const customer = await stripe.customers.create({
+      email: email,
+      name: name,
+      metadata: {
+        userId: userId
+      }
+    });
+    
+    // Save customer ID to user
+    user.stripeCustomerId = customer.id;
+    
+    res.json({
+      message: 'Stripe customer created successfully',
+      customerId: customer.id
+    });
+    
+  } catch (error) {
+    console.error('Stripe customer creation error:', error);
+    res.status(500).json({ error: 'Failed to create Stripe customer' });
   }
-  
-  // In real app, this would create a Stripe customer
-  // For demo, we'll just simulate it
-  user.stripeCustomerId = 'cus_' + Math.random().toString(36).substr(2, 9);
-  
-  res.json({
-    message: 'Payment setup complete',
-    stripeCustomerId: user.stripeCustomerId,
-    status: 'success'
-  });
+});
+
+// Create Payment Intent
+app.post('/api/stripe/payment', async (req, res) => {
+  try {
+    const { userId, amount, currency = 'usd', description } = req.body;
+    
+    const user = users.find(u => u.id === userId);
+    if (!user || !user.stripeCustomerId) {
+      return res.status(404).json({ error: 'User not found or no Stripe customer' });
+    }
+    
+    // Create payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100, // Convert to cents
+      currency: currency,
+      description: description,
+      customer: user.stripeCustomerId,
+      metadata: {
+        userId: userId
+      }
+    });
+    
+    res.json({
+      clientSecret: paymentIntent.client_secret
+    });
+    
+  } catch (error) {
+    console.error('Stripe payment error:', error);
+    res.status(500).json({ error: 'Payment processing failed' });
+  }
+});
+
+// Create Subscription
+app.post('/api/stripe/subscription', async (req, res) => {
+  try {
+    const { userId, priceId, trialDays = 14 } = req.body;
+    
+    const user = users.find(u => u.id === userId);
+    if (!user || !user.stripeCustomerId) {
+      return res.status(404).json({ error: 'User not found or no Stripe customer' });
+    }
+    
+    // Create subscription
+    const subscription = await stripe.subscriptions.create({
+      customer: user.stripeCustomerId,
+      items: [{
+        price: priceId,
+      }],
+      trial_period_days: trialDays,
+      metadata: {
+        userId: userId
+      }
+    });
+    
+    res.json({
+      subscriptionId: subscription.id,
+      status: subscription.status
+    });
+    
+  } catch (error) {
+    console.error('Stripe subscription error:', error);
+    res.status(500).json({ error: 'Subscription creation failed' });
+  }
 });
 
 // Start server
