@@ -368,27 +368,99 @@
             });
         }
 
-        // Form submission handlers
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
+        // Function to make API calls
+        async function makeApiCall(endpoint, method = 'POST', data = null) {
+            try {
+                // Replace with your actual Render backend URL
+                const apiUrl = 'https://getcashflowpro-saas-2.onrender.com' + endpoint;
+                const response = await fetch(apiUrl, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: data ? JSON.stringify(data) : null
+                });
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                return { error: 'Failed to connect to server' };
+            }
+        }
+
+        // Update signup form to use API
+        document.getElementById('signupForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             const name = document.getElementById('signup-name').value;
             const email = document.getElementById('signup-email').value;
             const company = document.getElementById('signup-company').value;
             
-            alert(`Thank you for signing up, ${name}!\n\nIn a real application:\n1. Your account would be created\n2. You'd receive a confirmation email\n3. You'd be logged in automatically\n\nYour company: ${company}`);
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Processing...';
+            submitBtn.disabled = true;
             
-            closeModal('signupModal');
+            try {
+                // Call backend API
+                const result = await makeApiCall('/api/register', 'POST', {
+                    name: name,
+                    email: email,
+                    company: company,
+                    password: 'temp-password'
+                });
+                
+                if (result.error) {
+                    alert('Registration failed: ' + result.error);
+                } else {
+                    alert(`Thank you for signing up, ${name}!\n\nYour account has been created.`);
+                    closeModal('signupModal');
+                }
+            } catch (error) {
+                alert('Registration failed: ' + error.message);
+            } finally {
+                // Restore button
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         });
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // Update login form to use API
+        document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             
-            alert(`Login attempt for ${email}\n\nIn a real application:\n1. Your credentials would be verified\n2. You'd be logged in\n3. You'd see your dashboard with real financial data`);
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Logging in...';
+            submitBtn.disabled = true;
             
-            closeModal('loginModal');
+            try {
+                // Call backend API
+                const result = await makeApiCall('/api/login', 'POST', {
+                    email: email,
+                    password: password
+                });
+                
+                if (result.error) {
+                    alert('Login failed: ' + result.error);
+                } else {
+                    alert(`Welcome back, ${result.user.name}!\n\nYou have been logged in successfully.`);
+                    closeModal('loginModal');
+                }
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            } finally {
+                // Restore button
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         });
+
+        console.log('CashFlowPro frontend initialized with API connectivity');
     </script>
 </body>
 </html>
