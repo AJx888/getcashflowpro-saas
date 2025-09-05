@@ -4,12 +4,12 @@ const url = require('url');
 // Simple in-memory database
 let users = [];
 
-// Simple HTTP server
+// Simple HTTP server with proper CORS
 const server = http.createServer((req, res) => {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Set CORS headers for all requests
+  res.setHeader('Access-Control-Allow-Origin', '*'); // For development
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Content-Type', 'application/json');
 
   // Handle preflight requests
@@ -65,6 +65,37 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({
           message: 'Account created successfully',
           user: newUser
+        }));
+      } catch (error) {
+        res.writeHead(400);
+        res.end(JSON.stringify({ error: 'Invalid JSON' }));
+      }
+    });
+    
+  } else if (req.method === 'POST' && pathname === '/api/login') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        const loginData = JSON.parse(body);
+        const { email, password } = loginData;
+        
+        // Simple login (in real app, you'd verify password)
+        const user = users.find(u => u.email === email);
+        
+        if (!user) {
+          res.writeHead(401);
+          res.end(JSON.stringify({ error: 'Invalid credentials' }));
+          return;
+        }
+        
+        res.writeHead(200);
+        res.end(JSON.stringify({
+          message: 'Login successful',
+          user: user,
+          token: 'fake-jwt-token-' + user.id
         }));
       } catch (error) {
         res.writeHead(400);
